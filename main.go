@@ -42,7 +42,7 @@ func main() {
 	structure = LottoStructure{
 		69,
 		26,
-		1,
+		2,
 	}
 
 	fmt.Println("Lotto Sim")
