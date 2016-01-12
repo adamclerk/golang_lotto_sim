@@ -21,6 +21,8 @@ var structure LottoStructure
 var paytable Paytable
 var r *rand.Rand
 var wonJackpot bool
+var numbers []int
+var powerball int
 
 func main() {
 	paytable = Paytable{
@@ -117,10 +119,17 @@ func main() {
 			play()
 		}
 
-		fmt.Printf("Plays: %s\n", humanize.Comma(history.Plays))
+
+		fmt.Print("\033[2J")
+		fmt.Println("------------------------")
+		fmt.Println("summary")
+		fmt.Println("------------------------")
+		fmt.Printf("Plays:         %s\n", humanize.Comma(history.Plays))
 		fmt.Printf("Starting Cash: $%s\n", humanize.Comma(startingCash))
-		fmt.Printf("Winnings: $%s\n", humanize.Comma(winnings))
-		fmt.Printf("Remaining: $%s\n", humanize.Comma(cash))
+		fmt.Printf("Winnings:      $%s\n", humanize.Comma(winnings))
+		fmt.Printf("Remaining:     $%s\n", humanize.Comma(cash))
+		fmt.Printf("Picked Numbers: %v [%d]\n", pick, special)
+		fmt.Printf("Last Numbers:   %v [%d]\n", numbers, powerball)
 		fmt.Printf("PB:   %s\n", humanize.Comma(history.Wins[Match{0, true}]))
 		fmt.Printf("1+PB: %s\n", humanize.Comma(history.Wins[Match{1, true}]))
 		fmt.Printf("2+PB: %s\n", humanize.Comma(history.Wins[Match{2, true}]))
@@ -137,15 +146,15 @@ func main() {
 
 func play() {
 	history.Plays = history.Plays + 1
-	numbers := []int{}
-	for len(numbers) <= 5 {
+	numbers = []int{}
+	for len(numbers) < 5 {
 		num := r.Intn(structure.NumberRange)
 		if !Contain(num, numbers) {
 			numbers = append(numbers, num)
 		}
 	}
 	cash = cash - structure.PricePerTicket
-	powerball := r.Intn(structure.SpecialRange)
+	powerball = r.Intn(structure.SpecialRange)
 	matchesPowerBall := powerball == special
 	matches := 0
 	for i := 0; i < len(pick); i++ {
@@ -164,6 +173,14 @@ func play() {
 		cash = cash + payout
 		winnings = winnings + payout
 		history.Wins[Match{matches, matchesPowerBall}] = history.Wins[Match{matches, matchesPowerBall}] + 1
+	}
+
+	if history.Plays % 50000 == 0 {
+		fmt.Print("\033[2J")
+		fmt.Printf("Plays:          %s\n", humanize.Comma(history.Plays))
+		fmt.Printf("Starting Cash: $%s\n", humanize.Comma(startingCash))
+		fmt.Printf("Winnings:      $%s\n", humanize.Comma(winnings))
+		fmt.Printf("Remaining:     $%s\n", humanize.Comma(cash))
 	}
 }
 
